@@ -1,0 +1,40 @@
+---
+title: "Fundamentals of Machine Learning - Assignment 1"
+author: "Varshitha Guduru"
+date: "2024-02-04"
+output:
+  html_document:
+    df_print: paged
+---
+#Importing the data
+```{r}
+data = read.csv("C:/Users/Varshitha/Downloads/Data.csv")
+View(data)
+summary(data)
+
+```
+#discriptive statistics
+```{r}
+mean(data$Goals)
+
+sd(data$Matches_Played)
+
+str(data$Shots)
+```
+#data transformation of variable 
+```{r}
+MatchesPlayedVariance = sd(data$Matches_Played)* sd(data$Matches_Played)
+MatchesPlayedVariance
+```
+
+#histogram
+```{r}
+hist(data$Goals)
+```
+#scatter plot
+```{r}
+x <- data$Matches_Played
+y <- data$Goals
+
+plot(x,y, main = "Matches Played and Goals", xlab = "MatchesPlayed", ylab = "Goals")
+```
