@@ -1,0 +1,162 @@
+---
+title: "Assignment 4-Clustering   "
+author: "VARSHITHA GUDURU"
+date: "2024-03-17"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
+```
+
+An equities analyst is studying the pharmaceutical industry and would like your help in exploring and understanding
+the financial data collected by her firm. Her main objective is to understand the structure of the pharmaceutical
+industry using some basic financial measures. Financial data gathered on 21 firms in the pharmaceutical industry are
+available in the file Pharmaceuticals.csv
+
+Use cluster analysis to explore and analyze the given dataset
+
+```{r}
+
+library(factoextra)
+library(ggplot2)
+library(tidyverse)
+library(readr)
+
+Pharmaceuticals <- read.csv("C:/Users/Varshitha/Downloads/Pharmaceuticals (1).csv")  
+
+summary(Pharmaceuticals)
+
+```
+
+**Qustion (a):**
+Use only the numerical variables (1 to 9) to cluster the 21 firms. Justify the various choices made in conducting the cluster analysis, such as weights for different variables, the specific clustering algorithm(s) used, the number of clusters formed, and so on.
+
+**Answer (a):**
+Remove missing data and rescale variables for comparability before grouping the data.
+```{r}
+x <- na.omit(Pharmaceuticals) #Doing this will remove all the missing values in the data
+x
+```
+
+Having now eliminated the missing values from the data, we should gather only the quantitative variables (i.e., 1–9) in order to group the 21 companies.
+```{r}
+row.names(x) <- x[,1]
+Pharma1<- x[,3:11]
+head(Pharma1)
+```
+
+All of the quantitative variables in the dataframe are now scaled.
+```{r}
+Pharma2<-scale(Pharma1)
+head(Pharma2)
+```
+
+The next stage is to calculate the number of clusters for the Elbow Method cluster analysis.
+```{r}
+fviz_nbclust(Pharma2, kmeans, method = "wss") + labs(subtitle = "Elbow Method")
+```
+
+Finding the number of clusters using the silhouette method
+```{r}
+fviz_nbclust(Pharma2, kmeans, method = "silhouette")+ labs(subtitle = "Silhouette Method")
+```
+
+It is evident from the plots above that there are 5 clusters,
+which is sufficient to display the changes in the data.
+```{r}
+set.seed(120)
+k5<- kmeans(Pharma2,centers=5,nstart = 25) 
+#Visualize the output
+k5$centers  #centroids
+fviz_cluster(k5,data = Pharma2) # to Visualize the clusters
+k5
+distance<- dist(Pharma2, method = "euclidean")
+fviz_dist(distance)
+```
+
+
+**K-Means Cluster Analysis** - Fit the data with 5 clusters
+
+```{r}
+fit<-kmeans(Pharma2,5)
+```
+
+Now, we find the mean value of all quantitative variables for each cluster
+
+```{r}
+aggregate(Pharma2,by=list(fit$cluster),FUN=mean)
+```
+```{r}
+Pharma3<-data.frame(Pharma2,fit$cluster)
+Pharma3
+```
+
+FOr viewing the cluster plot
+```{r}
+library(cluster)
+clusplot(Pharma2,fit$cluster,color = TRUE,shade = TRUE,labels = 2,lines = 0)
+```
+
+**Question (b):**
+Interpret the clusters with respect to the numerical variables used in forming the clusters.
+
+
+**Answer(b):**
+
+By observing the mean values of all quantitative variables for each cluster
+
+Cluster 1 - BAY, CHTT, IVX
+
+Cluster 2 - ABT, AZN, BMY, LLY, NVS, SGP,WYE
+
+Cluster 3 - ELN, MRX
+
+Cluster 4 - JNJ, MRK, PFE, GSK
+
+Cluster 5 - AGN, AHM, AVE, PHA, WPI
+
+Cluster 1 has highest Beta , Leverage and lowest Market_Cap, ROE, ROA, Leverage, Rev_Growth, Net_Profit_Margin
+Cluster 2 has highest Net_Profit_Margin and lowest Beta.
+Cluster 3 has highest Rev_Growth and lowest PE_Ratio, Asset_Turnover.
+Cluster 4 has highest Market_Cap, ROE, ROA,Asset_Turnover 
+Cluster 5 has highest PE_Ratio.
+
+**Question(c):**Is there a pattern in the clusters with respect to the numerical variables (10 to 12)? (those not used in forming the clusters)
+
+
+**Answer(c):**
+
+There is a pattern in the clusters with respect to Media recommendation variable.
+
+Cluster 1 with highest Beta, highest Leverage has mostly Moderate Buy Recommendation.
+
+Cluster 2 with highest Net_Profit_Margin has mostly Hold Recommendation
+
+Cluster 3 with lowest PE_Ratio  and lowest Asset_Turnover has Hold Recommendation
+
+Cluster 4 with highest Market_Cap, highest ROE, highest ROA, highest Asset_Turnover has equal Hold and Moderate Buy Recommendation
+
+Cluster 5 with highest PE_Ratio  has the Strong Buy Recommendation, because high PE_Ratio indicates the company is growing fast.
+
+Could see a pattern among the clusters with respect to variables(10 to 12)
+
+Clusters 1,4 has mostly Moderate Buy Recommendation
+
+Clusters 2,3,4 has Hold Recommendation
+                                                      
+**Question(d):**
+Provide an appropriate name for each cluster using any or all of the variables in the dataset.
+
+**Answer(d):**
+Cluster1 - high Beta, Leverage cluster (or) Buy Cluster. 
+
+Cluster2 - high Net_Profit_Margin cluster (or) high hold cluster.
+
+Cluster3 - Low PE_Ratio, Asset_Turnover cluster (or) hold cluster.
+
+Cluster4 - Moderate Buy cluster
+
+Cluster5 - high PE_Ratio cluster (or) high Buy cluster.
